@@ -69,6 +69,7 @@ def get_movie_ratings(movie_id):
     
     return movie_ratings
 
+
 def update_rating(rating_id, new_score):
     """ Update a rating given rating_id and the updated score. """
     rating = Rating.query.get(rating_id)
