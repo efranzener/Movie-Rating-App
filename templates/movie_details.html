@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ movie.title }} - Details{% endblock %}
+
+{% block body %}
+  <h1>{{ movie.title }}</h1>
+
+  <p>
+    {{ movie.overview }}
+  </p>
+</p> The average rating for this movie is: {{average_rating}}</p>
+  <img src="{{ movie.poster_path }}">
+  {% if 'user' in session %}
+    <form action="/movies/{{movie.movie_id}}/ratings" method = "POST"> 
+      <label> How would you rate this movie?</label>
+      <input type="radio" name="rating" value="1" id ="one">
+      <label for="one">1</label>
+      <input type="radio" name="rating" value="2" id ="two">
+      <label for="two">2</label>
+      <input type="radio" name="rating" value="3" id ="three">
+      <label for="three">3</label>
+      <input type="radio" name="rating" value="4" id ="four">
+      <label for="four">4</label>
+      <input type="radio" name="rating" value="5" id ="five">
+      <label for="five">5</label>
+      <input type="submit"> 
+    </form>
+    {%else%}
+      <p> In order to rate a movie, please <a href='/'> Log In <a>
+    {%endif%}
+{% endblock %}
