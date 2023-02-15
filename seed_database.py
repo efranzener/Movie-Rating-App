@@ -17,7 +17,7 @@ model.db.create_all()
 
 with open('data/movies.json') as f:
     movie_data = json.loads(f.read())
-
+    
 
 movies_in_db = []
 for movie in movie_data:
@@ -34,18 +34,20 @@ for movie in movie_data:
 model.db.session.add_all(movies_in_db)
 model.db.session.commit()
 
+
 for n in range(10):
     email = f"user{n}@test.com" 
     password = "test"
-
-    user = crud.create_user(email, password)
+    username = "user" + "" + str(n)
+    user = crud.create_user(username, email, password)
     model.db.session.add(user)
 
     for movie in range(10):
+        # print("Im the movie_database", type(movies_in_db))
         random_movie = choice(movies_in_db)
+        
         score = randint(1, 5)
-
-        rating = crud.create_rating(user, random_movie, score)
+        rating = crud.create_rating(user.id, random_movie.movie_id, score)
         model.db.session.add(rating)
 
 model.db.session.commit()

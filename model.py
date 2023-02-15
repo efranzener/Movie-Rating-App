@@ -1,23 +1,41 @@
 """Models for movie ratings app."""
 
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
 
 db = SQLAlchemy()
 
-
-class User(db.Model):
+class User(db.Model, UserMixin):
     """ A user."""
     
     __tablename__ = 'users'
 
-    user_id = db.Column(db.Integer, primary_key = True, autoincrement = True, )
-    email = db.Column(db.String, unique = True)
-    password = db.Column(db.String)
+    id = db.Column(db.Integer, primary_key = True, autoincrement = True, )
+    username = db.Column(db.String, nullable = False)
+    email = db.Column(db.String, unique = True, nullable = False)
+    password = db.Column(db.String, nullable = False)
+    # authenticated = db.Column(db.Boolean, default = False)
 
+    # def is_active(self):
+    #     """returns True, as all users are active"""
+    #     return True
+
+    # def is_authenticated(self):
+    #     """ resturns True if the current user is authenticated"""
+    #     return self.authenticated
+    
+    # def get_id(self):
+    #     """returs a user id"""
+    #     return self.id
+    
+    # def is_anonymous(self):
+    #     """returns False, as the app doesn't support anonymous users"""
+
+    #     return False
     # ratings = a list of Rating objects    
 
     def __repr__(self):
-        return f"<User id = {self.user_id} email = {self.email}>"
+        return f"<User id = {self.id} email = {self.email}>"
     
  
 class Movie(db.Model):
@@ -45,7 +63,7 @@ class Rating(db.Model):
     rating_id = db.Column(db.Integer, autoincrement = True, primary_key = True)
     score = db.Column(db.Integer)
     movie_id = db.Column(db.Integer, db.ForeignKey("movies.movie_id"))
-    user_id = db.Column(db.Integer, db.ForeignKey("users.user_id"))
+    id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
     movie = db.relationship("Movie", backref="ratings")
     user = db.relationship("User", backref="ratings")

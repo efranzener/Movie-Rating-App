@@ -1,10 +1,10 @@
 from model import db, User, Movie, Rating, connect_to_db
 
 
-def create_user(email, password):
+def create_user(username, email, password):
     """Create and return a new user."""
 
-    user = User(email=email, password=password)
+    user = User(username=username, email=email, password=password)
 
     return user
 
@@ -21,10 +21,10 @@ def get_user_by_email(email):
     return User.query.filter(User.email == email).first()
 
 
-def get_user_by_id(user_id):
+def get_user_by_id(id):
     """Return a user by id"""
 
-    return User.query.get(user_id)
+    return User.query.get(id)
 
 
 def create_movie(title, overview, release_date, poster_path):
@@ -54,10 +54,10 @@ def get_movie_by_id(movie_id):
     return movie
 
 
-def create_rating(user_id, movie_id, score):
+def create_rating(id, movie_id, score):
     """Create and return a new rating."""
 
-    rating = Rating(user_id=user_id, movie_id=movie_id, score=score)
+    rating = Rating(id=id, movie_id=movie_id, score=score)
     
     return rating
 
@@ -68,7 +68,6 @@ def get_movie_ratings(movie_id):
     movie_ratings = Rating.query.filter(Rating.movie_id == movie_id).all()
     
     return movie_ratings
-
 
 def update_rating(rating_id, new_score):
     """ Update a rating given rating_id and the updated score. """
