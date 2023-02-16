@@ -1,10 +1,17 @@
 from model import db, User, Movie, Rating, connect_to_db
 
 
-def create_user(username, email, password):
+def create_user(username, email, **kwargs):
     """Create and return a new user."""
 
-    user = User(username=username, email=email, password=password)
+    user = User(username=username, email=email)
+
+
+    if "password" in kwargs.keys():
+        user.password = kwargs['password']
+
+        user = User(username=username, email=email, id=user.id, password=user.password)
+    
 
     return user
 

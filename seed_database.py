@@ -39,7 +39,7 @@ for n in range(10):
     email = f"user{n}@test.com" 
     password = "test"
     username = "user" + "" + str(n)
-    user = crud.create_user(username, email, password)
+    user = crud.create_user(username, email, password=password)
     model.db.session.add(user)
 
     for movie in range(10):

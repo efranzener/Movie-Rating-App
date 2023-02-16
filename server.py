@@ -9,8 +9,11 @@ import os
 # import googleapiclient
 import hashlib
 import googleoauth
+from google.oauth2 import id_token
 from google_auth_oauthlib.flow import Flow
-
+import google.auth.transport.requests
+import requests
+from cachecontrol import CacheControl
 
  
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
@@ -60,12 +63,14 @@ def unauthorized():
 def index():
     """View homepage"""
     
+    
     if current_user.is_authenticated:
-        return render_template('user_profile.html', user= current_user)
+        
+        return redirect(url_for('show_user_profile'))
     else:
+       
         return render_template('homepage.html')
     
-
 
 
 @app.route("/users", methods=['POST'])
@@ -82,7 +87,7 @@ def register_user():
     if user:
         flash("Cannot create an account with that email. Please try again ")
     else: 
-        user = crud.create_user(username, email, password)
+        user = crud.create_user(username=username, email=email, password=password)
         db.session.add(user)
         db.session.commit()
         flash("Account successfully created. Please log in")
@@ -90,45 +95,33 @@ def register_user():
     return redirect("/")
 
 
-@app.route("/gmailsignup", methods=["GET"])
-def signup_google():
-    """ redirect users to sign up using their gmail account"""
-    state = hashlib.sha256(os.urandom(1024)).hexdigest()
-    session['state'] = state
 
+@app.route("/googlesignin")
+def googlesignin():
+    """Process Google sign in authorization flow"""
+
+
+    state = hashlib.sha256(os.urandom(1024)).hexdigest()
     flow = Flow.from_client_secrets_file(client_secrets_file = googleoauth.CLIENT_SECRETS,
     scopes= googleoauth.SCOPES)
     flow.redirect_uri = googleoauth.REDIRECT_URI
-
-    authorization_url = flow.authorization_url(
+    authorization_url, state = flow.authorization_url(
     access_type="offline",
     prompt="consent",
     state = state,
     include_granted_scopes='true')
 
+    session['state'] = state
+
+
     return redirect(authorization_url)
 
 
-@app.route("/login", methods=['POST', 'GET'])
+
+@app.route("/login", methods=['POST'])
 def login():
-    """Handle users login"""
+    """Process user's login"""
     
-
-    if request.method == 'GET':
-        
-        flow = Flow.from_client_secrets_file(client_secrets_file = googleoauth.CLIENT_SECRETS,
-        scopes= googleoauth.SCOPES)
-        flow.redirect_uri = googleoauth.REDIRECT_URI
-
-        authorization_url, state = flow.authorization_url(
-        access_type="offline",
-        prompt="consent",
-        include_granted_scopes='true')
-        session['state'] = state
-
-        print("im the session state", session['state'])
-        
-        return redirect(authorization_url)
     
     email = request.form.get('email')
     password = request.form.get('password')
@@ -140,7 +133,7 @@ def login():
         
     elif email == user.email and password == user.password: 
         
-        session['user'] = email
+        session['user'] = user.username
         login_user(user)
         flash("Successfully logged in!")
         
@@ -152,27 +145,20 @@ def login():
 
 @app.route('/callback')
 def callback():
-
-    # flow = googleoauth.flow()
-    state = session.get('state')
-    # if state != request.args.get('state'):
-    #     redirect('/')
-
-    print("im the current state", state)
-    print("state", request.args.get('state'))
-    if request.args.get('state', '') != state:
-        del session['state']
-        flash("something went wrong, please try logging in again")
-        return redirect('/')
+    """ callback function from Google OAuth"""
     
-    # code = request.args.get("code")
-    # endpoint = request.args.get("token_endpoint")
+
+    if 'state' in session:
+        
+        if request.args.get('state', '') != session['state']:
+            logout_user()
+            flash("something went wrong, please try logging in again")
+            return redirect('/')
 
     flow = Flow.from_client_secrets_file(client_secrets_file = googleoauth.CLIENT_SECRETS,
         scopes= googleoauth.SCOPES,
-        state = state,
-        redirect_uri = googleoauth.REDIRECT_URI)
-    
+        )
+    flow.redirect_uri = googleoauth.REDIRECT_URI
 
     flow.fetch_token(authorization_response = request.url)
     
@@ -184,9 +170,38 @@ def callback():
         'token_uri': credentials.token_uri,
         'client_id': credentials.client_id,
         'client_secret': credentials.client_secret,
+        'id_token': credentials.id_token,
         'scopes': credentials.scopes}
 
-    return redirect(url_for('show_user_profile'))
+    # Use caching to reduce latency
+    sess = requests.session()
+    cached_sess = CacheControl(sess)
+    google_request = google.auth.transport.requests.Request(session=cached_sess)
+
+    # Verify the ID Token issued by Google’s OAuth 2.0 authorization server.
+    id_info = id_token.verify_oauth2_token(
+    id_token = session['credentials']['id_token'], request = google_request, audience = session['credentials']['client_id'])
+    email = id_info['email']
+
+    # Check if user is already in the database
+    user = crud.get_user_by_email(email)
+
+    # If user has an account sign in user
+    if user:
+        
+        login_user(user)
+        return redirect(url_for('show_user_profile'))
+
+    # if user is signing in for the first time and is using google sign in, after they pass google authentication,
+    # we create a new account for them and then log them in
+    else:
+        user = crud.create_user(username = id_info['given_name'] , email= id_info['email'] )
+        db.session.add(user)
+        db.session.commit()
+        login_user(user)
+
+        
+        return redirect(url_for('show_user_profile'))
 
 
 
@@ -194,8 +209,10 @@ def callback():
 @login_required
 def show_user_profile():
     """Show profile user profile"""
+    
+        
+    return render_template('user_profile.html', user = current_user)
 
-    return render_template('user_profile.html', user= current_user)
 
 
 @app.route('/movies')
@@ -207,10 +224,19 @@ def all_movies():
     return render_template("all_movies.html", movies=movies)
 
 
-@app.route("/movies/<movie_id>")
+
+@app.route("/movies/<movie_id>/")
 def show_movie(movie_id):
     """Show details on a particular movie"""
 
+    
+    if '_user_id' in session:
+        user = crud.get_user_by_id(session['_user_id'])
+        session['user'] = user.username
+
+    else:
+        user = None
+    
     movie = crud.get_movie_by_id(movie_id)
     ratings_list = crud.get_movie_ratings(movie_id)
     num_users = 0
@@ -223,23 +249,27 @@ def show_movie(movie_id):
     else: 
         average_rating = movie_rating  
 
-    return render_template('movie_details.html', movie=movie, average_rating = average_rating)
+
+    return render_template('movie_details.html', current_user=user, movie=movie, average_rating = average_rating)
 
 
-@app.route('/users')
+
+@app.route('/allusers')
 @login_required
 def all_users():
     """View all users """
     
     users = crud.get_users()
 
+
     return render_template("all_users.html", users=users)
+
 
 
 @app.route('/movies/<movie_id>/ratings', methods=['POST'])
 @login_required
 def rate_movie(movie_id):
-    "Allow users to create a movie ratings"
+    "Allow users to rate a movie"
     
    
     user = current_user
@@ -250,19 +280,29 @@ def rate_movie(movie_id):
     
     movie_ratings = crud.get_movie_ratings(movie_id)
     
+
     return redirect (url_for('show_movie', user_id = user.user_id, movie_id=movie_id,   movie_ratings = movie_ratings))
+    
     
 
 @app.route('/logout')
 @login_required
 def logout():
-    """Allow users to logout"""
+    """Logout users"""
 
+    print("im the current session,state in logout ", session['state'])
+
+    print(session)
     if 'credentials' in session:
-        del session['credentials']
-        del session['state']
+        session.pop('credentials', None)
+    if 'state' in session:
+        session.pop('state', None)
+
+    # delete the info stored in session
+    session.pop('user', None)
     logout_user()
    
+
     return redirect('/')
 
 

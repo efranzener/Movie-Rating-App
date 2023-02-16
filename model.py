@@ -10,29 +10,14 @@ class User(db.Model, UserMixin):
     
     __tablename__ = 'users'
 
-    id = db.Column(db.Integer, primary_key = True, autoincrement = True, )
+    id = db.Column(db.Integer, primary_key = True, autoincrement = True )
     username = db.Column(db.String, nullable = False)
     email = db.Column(db.String, unique = True, nullable = False)
-    password = db.Column(db.String, nullable = False)
-    # authenticated = db.Column(db.Boolean, default = False)
+    password = db.Column(db.String)
 
-    # def is_active(self):
-    #     """returns True, as all users are active"""
-    #     return True
+    def is_anonymous(self):
+        return False
 
-    # def is_authenticated(self):
-    #     """ resturns True if the current user is authenticated"""
-    #     return self.authenticated
-    
-    # def get_id(self):
-    #     """returs a user id"""
-    #     return self.id
-    
-    # def is_anonymous(self):
-    #     """returns False, as the app doesn't support anonymous users"""
-
-    #     return False
-    # ratings = a list of Rating objects    
 
     def __repr__(self):
         return f"<User id = {self.id} email = {self.email}>"
