@@ -1,0 +1,7 @@
+# created by virtualenv automatically
+*
+__pycache__
+env
+.sh
+.json
+googleoauth.py
