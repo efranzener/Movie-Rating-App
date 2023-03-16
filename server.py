@@ -1,6 +1,6 @@
 """Server for movie ratings app."""
 
-from flask import (Flask, render_template, request, flash, session,redirect, url_for)
+from flask import (Flask, render_template, request, flash, session,redirect, url_for, jsonify, make_response)
 from model import connect_to_db, db
 import crud
 from jinja2 import StrictUndefined
@@ -73,26 +73,30 @@ def index():
     
 
 
-@app.route("/users", methods=['POST'])
+@app.route("/api/signup", methods=['POST'])
 def register_user():
     """Create a new user"""
     
 
-    username = request.form.get('username')
-    email = request.form.get('email')
-    password = request.form.get('password')
+    name = request.json.get('name')
+    email = request.json.get('email')
+    password = request.json.get('pwd')
     
     user = crud.get_user_by_email(email)
+
     
     if user:
-        flash("Cannot create an account with that email. Please try again ")
+        
+        return {"success": False,
+                "msg": "Cannot create an account with that email, please try again"}, 409
     else: 
-        user = crud.create_user(username=username, email=email, password=password)
+        user = crud.create_user(name=name, email=email, password=password)
         db.session.add(user)
         db.session.commit()
-        flash("Account successfully created. Please log in")
         
-    return redirect("/")
+        return { 
+            "msg": "Account successfully created. Please log in",
+            }, 200
 
 
 
@@ -122,10 +126,11 @@ def googlesignin():
 def login():
     """Process user's login"""
     
-    
-    email = request.form.get('email')
-    password = request.form.get('password')
-    
+    email = request.json.get('userEmail')
+
+    # username = request.json.get('usernameLogin')
+    password = request.json.get('passwordLogin')
+    0
     user = crud.get_user_by_email(email)
     
     if not user or user.password != password:
@@ -133,7 +138,7 @@ def login():
         
     elif email == user.email and password == user.password: 
         
-        session['user'] = user.username
+        session['user'] = user.name
         login_user(user)
         flash("Successfully logged in!")
         
@@ -190,18 +195,21 @@ def callback():
     if user:
         
         login_user(user)
-        return redirect(url_for('show_user_profile'))
+        return redirect(url_for('index'))
 
     # if user is signing in for the first time and is using google sign in, after they pass google authentication,
     # we create a new account for them and then log them in
     else:
-        user = crud.create_user(username = id_info['given_name'] , email= id_info['email'] )
+        email_split = (id_info['email']).split("@")
+        name = email_split[0]
+        
+        user = crud.create_user(name = name , email= id_info['email'] )
         db.session.add(user)
         db.session.commit()
         login_user(user)
 
         
-        return redirect(url_for('show_user_profile'))
+        return redirect(url_for('index'))
 
 
 
@@ -232,7 +240,7 @@ def show_movie(movie_id):
     
     if '_user_id' in session:
         user = crud.get_user_by_id(session['_user_id'])
-        session['user'] = user.username
+        session['user'] = user.name
 
     else:
         user = None
@@ -290,7 +298,6 @@ def rate_movie(movie_id):
 def logout():
     """Logout users"""
 
-    print("im the current session,state in logout ", session['state'])
 
     print(session)
     if 'credentials' in session:

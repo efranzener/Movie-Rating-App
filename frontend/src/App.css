@@ -1,0 +1,171 @@
+
+
+
+.App {
+  align-items: center;
+  color: black;
+  padding: 1rem 0.5rem;
+  flex-direction: column;
+  justify-content: center;
+  display:flex;
+  min-height: 100vh;
+  padding:1rem 0.5rem;
+
+}
+
+/* .App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+} */
+
+/* .App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+} */
+
+/* .App-link {
+  color: #61dafb;
+} */
+
+/* @keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+} */
+
+/* ########################## */
+
+
+#sigupSec {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 1rem;
+  width: 100%;
+  max-width: 220px;
+  min-height: 200px;
+}
+
+
+
+#signupForm {
+display: flex;
+flex-direction: column;
+justify-content: center;
+padding: 1rem;
+flex-grow: 1;
+border-color: black;
+border: solid;
+background-color: white;
+opacity: 0.9;
+max-width: 250px;
+width: 100%;
+border-radius: 0.5rem;
+
+}
+
+
+
+section > form > label {
+/* margin-top: 0.25rem; */
+padding: 0.25rem;
+font-weight: 500;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"]{
+  padding: 0.3rem;
+  background-color: whitesmoke;
+  max-width: 240px;
+  border-radius: 0.25rem;
+  font-size: medium;
+  /* margin-bottom: 0.5rem; */
+  
+
+}
+
+button {
+padding: 0.5rem;
+border-radius: 0.25rem;
+max-width: 100px;
+margin-top: 0.25rem;
+align-self: center;
+background-color: black;
+color: white;
+font-size: medium;
+font-weight: bold;
+
+}
+
+.offscreen {
+  position: absolute;
+  left: -9999px;
+}
+
+.hide {
+display: none;
+}
+
+.valid {
+  color: limegreen;
+  margin-left: 0.25rem;
+}
+
+.invalid{
+  color: red;
+  margin-left: 0.30rem;
+}
+
+.instructions > svg {
+  margin-right: 0.25rem;
+}
+
+.instructions {
+  border-radius: 0.25rem;
+  /* background: #000; */
+  color: red;
+  padding: 0.3rem;
+  position: relative;
+  max-width: 300px;
+  font-size: 0.9rem;
+  
+
+}
+
+.successAlert {
+background-color: olivedrab;
+color: white;
+max-width: 300px;
+padding: 0.3rem;
+font-size: 0.9rem;
+border-radius: 0.25rem;
+}
+
+.errMsg {
+  background-color: red;
+  color: white;
+  max-width: 300px;
+  padding: 0.25rem;
+  font-size: 0.9rem;
+  border-radius: 0.25rem;
+}
+
+.formTitle{
+text-align: center;
+}

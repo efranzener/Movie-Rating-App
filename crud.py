@@ -1,16 +1,16 @@
 from model import db, User, Movie, Rating, connect_to_db
 
 
-def create_user(username, email, **kwargs):
+def create_user(name, email, **kwargs):
     """Create and return a new user."""
 
-    user = User(username=username, email=email)
+    user = User(name=name, email=email)
 
 
     if "password" in kwargs.keys():
         user.password = kwargs['password']
 
-        user = User(username=username, email=email, id=user.id, password=user.password)
+        user = User(name=name, email=email, id=user.id, password=user.password)
     
 
     return user
@@ -27,6 +27,10 @@ def get_user_by_email(email):
 
     return User.query.filter(User.email == email).first()
 
+# def get_user_by_username(username):
+#     """Return a user by email."""
+
+#     return User.query.filter(User.username == username).first()
 
 def get_user_by_id(id):
     """Return a user by id"""
