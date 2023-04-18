@@ -1,8 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { faCheck, faXmark, faCircleInfo } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
-
+import Login from "./Login"
 
 const nameRegex = /^[a-zA-Z]{3,15}$/;
 const emailRegex = /^[a-zA-Z]*[\w-.]+@([\w]+.)+[\w]{3,30}/;
@@ -66,13 +65,13 @@ const SignUp = () => {
         try {
             const response = await fetch('/api/signup', {
                 method: "POST",
-                headers: {'Content-Type': 'application/json'
+                headers: {"Content-Type": "application/json"
                 },
                 body: JSON.stringify({name, email, pwd}),     
             }
             );
             
-            if (response.status === 200) {
+            if (response.status === 201) {
                 setSuccessMsg(true);
                 setName("");
                 setEmail("");
@@ -193,7 +192,8 @@ const SignUp = () => {
                 <p>
                     Already have an account? <br/>
                     <span>
-                        <a href="">Sign In</a>
+                        
+                        <a href={<Login/>} >Sign In</a>
                     </span>
                 </p>
             </form>

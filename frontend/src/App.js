@@ -1,11 +1,26 @@
 import './App.css';
-import Homepage from "./components/Homepage";
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import Dashboard from "./components/Dashboard";
+import SharedLayout from "./components/SharedLayout";
+import Homepage from './components/Homepage';
+// import AllMovies from "./components/AllMovies";
 
 function App() {
+  // const [user, setUser] = useState(null);
   return (
-    <div className="App">
-      <Homepage/>
-    </div>
+    <BrowserRouter>
+      <Routes className="App">
+        <Route path="/" element={<SharedLayout/>}>
+          <Route index element={<Homepage/>}/>
+          
+
+          <Route path="/dashboard" element={<Dashboard/>}/>
+           {/* /* <Route path="/AllMovies" element={<AllMovies/>}/> */ }
+        </Route>
+      </Routes>
+      
+    </BrowserRouter>
+    
   );
 }
 

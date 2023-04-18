@@ -84,9 +84,9 @@ def register_user():
     
     user = crud.get_user_by_email(email)
 
-    
+    print("name", name, "email", email, "password", password)
     if user:
-        
+        print("user found", user)
         return {"success": False,
                 "msg": "Cannot create an account with that email, please try again"}, 409
     else: 
@@ -96,7 +96,7 @@ def register_user():
         
         return { 
             "msg": "Account successfully created. Please log in",
-            }, 200
+            }, 201
 
 
 
@@ -126,26 +126,35 @@ def googlesignin():
 def login():
     """Process user's login"""
     
-    email = request.json.get('userEmail')
+    email = request.json.get("email")
+    print("current email", email)
 
     # username = request.json.get('usernameLogin')
-    password = request.json.get('passwordLogin')
-    0
+    password = request.json.get("password")
+    print("current password", password)
+
     user = crud.get_user_by_email(email)
+    print("current user", user.email, "pwd", user.password)
     
     if not user or user.password != password:
-        flash("Please verify your email and password and try again")
-        
-    elif email == user.email and password == user.password: 
+        print("user", user, "password", password)
+        return {"msg": "failed"}, 401
+    
+    
+    elif (email == user.email and password == user.password): 
         
         session['user'] = user.name
-        login_user(user)
-        flash("Successfully logged in!")
+        login_user(user) 
         
-        return redirect(url_for('show_user_profile'))
+        return {"name": session['user'],
+                "emailLogin": email,
+                "pwdLogin": password,
+                "msg": "success"}
     
-    return redirect("/")
 
+    else:
+        
+        return {"msg": "failed"}
 
 
 @app.route('/callback')
@@ -293,25 +302,28 @@ def rate_movie(movie_id):
     
     
 
-@app.route('/logout')
+@app.route('/logout', methods=['POST'])
 @login_required
 def logout():
     """Logout users"""
+    
+   
+    user = request.json.get("currentUser")
 
-
-    print(session)
     if 'credentials' in session:
         session.pop('credentials', None)
+    
     if 'state' in session:
         session.pop('state', None)
-
+    
+    if ('user' in session == user):
     # delete the info stored in session
-    session.pop('user', None)
-    logout_user()
+        session.pop('user', None)
+        logout_user()
    
-
-    return redirect('/')
-
+        return ({"message": "sucessfully logged out"}, 200)
+    else:
+        return user
 
 if __name__ == "__main__":
     connect_to_db(app)

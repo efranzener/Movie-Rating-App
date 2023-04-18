@@ -6,8 +6,7 @@
   color: black;
   padding: 1rem 0.5rem;
   flex-direction: column;
-  justify-content: center;
-  display:flex;
+  /* display:flex; */
   min-height: 100vh;
   padding:1rem 0.5rem;
 
@@ -168,4 +167,68 @@ border-radius: 0.25rem;
 
 .formTitle{
 text-align: center;
+}
+
+
+.navbar {
+  /* background-color: #333; */
+  background-color: black;
+  opacity: 0.9;
+  padding: 15px;
+  overflow:hidden;  
+}
+
+.navbar a {
+  font-size: 14px;
+  font-weight: 300;
+  color: white;
+  display: block;
+  padding: 8px;
+  float: left;
+}
+
+.navbar a:hover {
+background-color: #333;
+}
+.isActive {
+  /* color: red; */
+  background-color: #04AA6D;
+  
+}
+
+.notActive {
+  color: blueviolet;
+  
+}
+
+#loginSec{
+  display: flex;
+  flex-direction: column;
+  /* justify-content: flex-start; */
+  padding: 1rem;
+  width: 100%;
+  max-width: 250px;
+  min-height: 200px;
+}
+
+#loginForm {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1rem;
+  flex-grow: 1;
+  border-color: black;
+  border: solid;
+  background-color: white;
+  opacity: 0.9;
+  max-width: 220px;
+  width: 100%;
+  border-radius: 0.5rem;
+}
+
+#homepage{
+display: flex;
+flex-direction: row;
+justify-content: space-between;
+
 }
