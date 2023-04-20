@@ -50,14 +50,19 @@
 /* ########################## */
 
 
-#sigupSec {
+#signupSec {
   display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
   padding: 1rem;
   width: 100%;
-  max-width: 220px;
+  max-width: 250px;
   min-height: 200px;
+  margin-top: 20vh;
+  height: 100%;
+  border: solid;
+  background-color: white;
+  border-radius: 0.5rem;
+
 }
 
 
@@ -69,12 +74,11 @@ justify-content: center;
 padding: 1rem;
 flex-grow: 1;
 border-color: black;
-border: solid;
-background-color: white;
+/* border: solid;
+background-color: white; */
 opacity: 0.9;
-max-width: 250px;
+max-width: 220px;
 width: 100%;
-border-radius: 0.5rem;
 
 }
 
@@ -84,6 +88,7 @@ section > form > label {
 /* margin-top: 0.25rem; */
 padding: 0.25rem;
 font-weight: 500;
+display: block;
 }
 
 input[type="text"],
@@ -94,10 +99,12 @@ input[type="password"]{
   max-width: 240px;
   border-radius: 0.25rem;
   font-size: medium;
+  flex-grow: 1;
+  position: relative;
   /* margin-bottom: 0.5rem; */
-  
 
 }
+
 
 button {
 padding: 0.5rem;
@@ -176,6 +183,7 @@ text-align: center;
   opacity: 0.9;
   padding: 15px;
   overflow:hidden;  
+  justify-content: space-between;
 }
 
 .navbar a {
@@ -203,12 +211,17 @@ background-color: #333;
 
 #loginSec{
   display: flex;
-  flex-direction: column;
-  /* justify-content: flex-start; */
+  justify-content: center;
   padding: 1rem;
   width: 100%;
   max-width: 250px;
   min-height: 200px;
+  margin-top: 20vh;
+  height: 100%;
+  border: solid;
+  background-color: white;
+  border-radius: 0.5rem;
+
 }
 
 #loginForm {
@@ -217,18 +230,28 @@ background-color: #333;
   justify-content: center;
   padding: 1rem;
   flex-grow: 1;
-  border-color: black;
-  border: solid;
-  background-color: white;
   opacity: 0.9;
   max-width: 220px;
   width: 100%;
-  border-radius: 0.5rem;
 }
 
 #homepage{
 display: flex;
 flex-direction: row;
-justify-content: space-between;
+justify-content: space-around;
+
+}
+
+.inputWrapper{
+position: relative;
+display: flex;
+
+
+}
+
+.showPwd{
+  position: absolute;
+  /* display: flex; */
+  /* margin-right: 1rem; */
 
 }

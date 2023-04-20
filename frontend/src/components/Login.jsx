@@ -2,13 +2,14 @@
 import { useState, useRef, useEffect, useContext} from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { UserContext }  from "../context/Context.js";
+import GoogleSignup from "./GoogleSignup.jsx"
 
 const Login = () => {
 
     const { currentUser, setCurrUser } = useContext(UserContext);
     const navigate = useNavigate();
-    const location = useLocation();
-    const from = location.state?.from?.pathname || "/";
+    // const location = useLocation();
+    // const from = location.state?.from?.pathname || "/";
 
     const emailRef = useRef();
     const errRef = useRef();
@@ -106,7 +107,11 @@ const Login = () => {
                             <span>
                                 <a href="#signupSec">Sign Up</a>
                             </span>
+                            <br></br>
+                            <br></br>
+                            <span>OR</span>
                         </p>
+                        <GoogleSignup/>
                     </form>
             
                 </section>
