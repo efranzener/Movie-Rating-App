@@ -245,13 +245,14 @@ justify-content: space-around;
 .inputWrapper{
 position: relative;
 display: flex;
-
-
+border: solid;
+border-color: pink;
 }
 
 .showPwd{
   position: absolute;
   /* display: flex; */
-  /* margin-right: 1rem; */
+  margin-left: 11.5rem;
+  margin-top: 0.5rem;
 
 }

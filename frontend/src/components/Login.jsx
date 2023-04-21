@@ -4,6 +4,11 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { UserContext }  from "../context/Context.js";
 import GoogleSignup from "./GoogleSignup.jsx"
 
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+
 const Login = () => {
 
     const { currentUser, setCurrUser } = useContext(UserContext);
@@ -18,6 +23,8 @@ const Login = () => {
     const [pwdLogin, setPwdLogin] = useState("");
     const [errMsg, setErrMsg] = useState("");
     
+    const [showPwd, setShowPwd] = useState(false)
+
   
     useEffect(() => {
         emailRef.current.focus();
@@ -26,6 +33,17 @@ const Login = () => {
     useEffect (() => {
         setErrMsg("");
     }, [emailLogin, pwdLogin]);
+
+
+    const handleShowPwd = () => {
+        if (pwdLogin.valueOf === ""){
+        setShowPwd(false)
+        } else {
+        setShowPwd(showPwd? false : true)
+        }
+        console.log("show pwd", showPwd)
+    }
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -90,16 +108,21 @@ const Login = () => {
                             />
                         </label>
                         <label htmlFor="pwdLogin">
-                            Password
-                            <input 
-                            autoComplete="off"
-                            id="pwdLogin"
-                            type="password" 
-                            value={pwdLogin} 
-                            onChange={(e) => setPwdLogin(e.target.value)}
-                            name="pwdLogin"
-                            required
-                            />
+                        Password
+                            <div className="inputWrapper">
+                                <input 
+                                autoComplete="off"
+                                id="pwdLogin"
+                                type={!showPwd? "password" : "text"}
+                                value={pwdLogin} 
+                                onChange={(e) => setPwdLogin(e.target.value)}
+                                name="pwdLogin"
+                                required
+                                />
+                                <FontAwesomeIcon className={!showPwd? "showPwd" : "hide" } onClick={handleShowPwd}  icon={faEye}/>   
+                                <FontAwesomeIcon  onClick={handleShowPwd} className={showPwd? "showPwd" : "hide" } icon={faEyeSlash} />
+                        
+                            </div>
                         </label>
                         <button type="submit">Login</button>
                         <p>

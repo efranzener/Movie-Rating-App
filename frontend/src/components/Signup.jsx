@@ -53,7 +53,12 @@ const SignUp = () => {
 
 
     const handleShowPwd = () => {
+        if (pwd.valueOf === ""){
+        setShowPwd(false)
+        } else {
         setShowPwd(showPwd? false : true)
+        }
+        console.log("show pwd", showPwd)
     }
 
 
@@ -80,6 +85,7 @@ const SignUp = () => {
         setName("");
         setEmail("");
         setPwd("");
+        setShowPwd(false);
       } else if (response.status === 409) {
         setErrMsg(
           "Cannot create an account with that email, please try again with a different email address."
@@ -193,7 +199,7 @@ const SignUp = () => {
                     <input
                     autoComplete="off"
                     id="pwd"
-                    type={showPwd? "text" : "password"}
+                    type={!showPwd? "password": "text"}
                     name="pwd"
                     onChange={(e) => setPwd(e.target.value)}
                     aria-invalid={validPwd ? "false" : "true"}
