@@ -52,15 +52,12 @@ const SignUp = () => {
     }, [name, email, pwd]);
 
 
-    const handleShowPwd = () => {
-        if (pwd.valueOf === ""){
-        setShowPwd(false)
-        } else {
-        setShowPwd(showPwd? false : true)
-        }
-        console.log("show pwd", showPwd)
-    }
+    const handleShowPwd = (e) => {
 
+        if (pwd !== ""){
+            setShowPwd(showPwd? false: true)
+        }
+    }
 
 
   const handleSubmit = async (e) => {
@@ -100,15 +97,15 @@ const SignUp = () => {
       errRef.current.focus();
     }
   };
-
   return (
     <>
-      {successMsg ? (
-        <p className="successAlert">
-          Account successfully created. Please log in
-        </p>
-      ) : (
-        <section id="signupSec">
+        
+        {successMsg ? 
+        <><p className="successAlert">
+                Account successfully created. Please log in
+            </p><Login /></>
+      : (
+        <section>
           <p
             ref={errRef}
             className={errMsg ? "errMsg" : "offscreen"}
@@ -117,7 +114,7 @@ const SignUp = () => {
             {errMsg}
           </p>
             <form onSubmit={handleSubmit} id="signupForm">
-                <h3 className="formTitle"> CREATE AN ACCOUNT </h3>
+                <h3 className="formTitle"> Sign Up </h3>
                 <label htmlFor="name" className="signupLabels">
                 Name
                 <span className={validName ? "valid" : "hide"}>
@@ -126,19 +123,23 @@ const SignUp = () => {
                 <span className={validName || !name ? "hide" : "invalid"}>
                     <FontAwesomeIcon icon={faXmark} />
                 </span>
+                    <div className="inputWrapper">
+
+                        <input
+                        ref={nameRef}
+                        type="text"
+                        name="name"
+                        id="name"
+                        onChange={(e) => setName(e.target.value)}
+                        aria-invalid={validName ? "false" : "true"}
+                        aria-describedby="uidnote"
+                        onFocus={() => setNameFocus(true)}
+                        onBlur={() => setNameFocus(false)}
+                        required
+                        ></input>
+                    </div>
                 </label>
-                <input
-                ref={nameRef}
-                type="text"
-                name="name"
-                id="name"
-                onChange={(e) => setName(e.target.value)}
-                aria-invalid={validName ? "false" : "true"}
-                aria-describedby="uidnote"
-                onFocus={() => setNameFocus(true)}
-                onBlur={() => setNameFocus(false)}
-                required
-                ></input>
+
                 <p
                 id="namenote"
                 className={
@@ -158,7 +159,6 @@ const SignUp = () => {
                 <span className={validEmail || !email ? "hide" : "invalid"}>
                     <FontAwesomeIcon icon={faXmark} />
                 </span>
-                </label>
                 <input
                 autoComplete="off"
                 type="email"
@@ -175,6 +175,8 @@ const SignUp = () => {
                 >
                 
                 </input>
+                </label>
+
                 <p
                 id="emailnote"
                 className={
@@ -183,36 +185,39 @@ const SignUp = () => {
                     : "offscreen"
                 }
                 >
-                <FontAwesomeIcon icon={faCircleInfo} />
+                <FontAwesomeIcon icon={faCircleInfo} size="sm"/>
                 Make sure you are using a valid email address format.
                 </p>
                 <label htmlFor="pwd">
                 Password
-                <span className={validPwd ? "valid" : "hide"}>
-                    <FontAwesomeIcon icon={faCheck} />
-                </span>
-                <span className={validPwd || !pwd ? "hide" : "invalid"}>
-                    <FontAwesomeIcon icon={faXmark} />
-                </span>
+
+                    <span className={validPwd ? "valid" : "hide"}>
+                        <FontAwesomeIcon icon={faCheck} size="sm"/>
+                    </span>
+                    <span className={validPwd || !pwd ? "hide" : "invalid"}>
+                        <FontAwesomeIcon icon={faXmark} />
+                    </span>
+                    <div className="inputWrapper">
+                        <input
+                        autoComplete="off"
+                        id="pwd"
+                        type={!showPwd? "password": "text"}
+                        name="pwd"
+                        onChange={(e) => setPwd(e.target.value)}
+                        aria-invalid={validPwd ? "false" : "true"}
+                        aria-describedby="uidnote"
+                        onFocus={() => setPwdFocus(true)}
+                        onBlur={() => setPwdFocus(false)}
+                        required
+                        ></input>
+                        {pwd === ""? 
+                        <FontAwesomeIcon className="showPwd"  icon={faEye}/>  
+                        : 
+                        <FontAwesomeIcon  onClick={handleShowPwd}
+                        className="showPwd" icon={!showPwd === true ? faEye : faEyeSlash} />
+                        } 
+                    </div>
                 </label>
-                <div className="inputWrapper">
-                    <input
-                    autoComplete="off"
-                    id="pwd"
-                    type={!showPwd? "password": "text"}
-                    name="pwd"
-                    onChange={(e) => setPwd(e.target.value)}
-                    aria-invalid={validPwd ? "false" : "true"}
-                    aria-describedby="uidnote"
-                    onFocus={() => setPwdFocus(true)}
-                    onBlur={() => setPwdFocus(false)}
-                    required
-                    ></input>
-                    <FontAwesomeIcon className={!showPwd? "showPwd" : "hide" } onClick={handleShowPwd}  icon={faEye}/>
-                                        
-                    <FontAwesomeIcon  onClick={handleShowPwd} className={showPwd? "showPwd" : "hide" } icon={faEyeSlash} />
-                        
-                </div>
                 <p
                 id="pwdnote"
                 className={pwdFocus && !validPwd ? "instructions" : "offscreen"}
@@ -232,14 +237,9 @@ const SignUp = () => {
                 <span aria-label="caret">^</span>
                 <span aria-label="asterisk">*</span>
                 </p>
-                <button type="submit"> Submit</button>
-                <p>
-                Already have an account? <br />
-                <span>
-                    <a href={<Login />}>Sign In</a>
-                </span>
-                </p>
+                <button className = "formsbutton" type="submit">Submit</button>
             </form>
+           
         </section>
       )}
     </>

@@ -5,6 +5,9 @@ const GoogleSignup =  () => {
 
 
     function handleCredentialResponse(response) {
+
+
+      
         console.log("Encoded JWT ID token: " + response.credential);
       }
 
@@ -16,13 +19,16 @@ const GoogleSignup =  () => {
           callback: handleCredentialResponse
         });
         google.accounts.id.renderButton(
-          document.getElementById("buttonDiv"),
-          { theme: "outline", size: "large" }  // customization attributes
+          document.getElementById("googleSignup"),
+          { theme: "filled_blue", size: "large", width: 260 }  // customization attributes
         );
         google.accounts.id.prompt(); // also display the One Tap dialog
       }, []);
       return (
-            <div id="buttonDiv"></div>
+         
+            <div id="googleSignup"></div>
+         
+            
         )
 
 }

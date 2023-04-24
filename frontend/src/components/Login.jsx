@@ -2,11 +2,9 @@
 import { useState, useRef, useEffect, useContext} from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { UserContext }  from "../context/Context.js";
-import GoogleSignup from "./GoogleSignup.jsx"
-
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 
 
 const Login = () => {
@@ -23,7 +21,7 @@ const Login = () => {
     const [pwdLogin, setPwdLogin] = useState("");
     const [errMsg, setErrMsg] = useState("");
     
-    const [showPwd, setShowPwd] = useState(false)
+    const [showPwd, setShowPwd] = useState(null)
 
   
     useEffect(() => {
@@ -32,18 +30,20 @@ const Login = () => {
 
     useEffect (() => {
         setErrMsg("");
+        
     }, [emailLogin, pwdLogin]);
 
 
-    const handleShowPwd = () => {
-        if (pwdLogin.valueOf === ""){
-        setShowPwd(false)
-        } else {
-        setShowPwd(showPwd? false : true)
-        }
-        console.log("show pwd", showPwd)
-    }
+    const handleShowPwd = (e) => {
 
+        
+        console.log("current Pwd", pwdLogin)
+        if (pwdLogin !== ""){
+            setShowPwd(showPwd? false: true)
+            console.log("showPwd false", showPwd)
+        }
+    }
+    
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -86,57 +86,53 @@ const Login = () => {
     return (
         <>
         
-                <section id="loginSec">
+        
+                <section>
                     <p ref={errRef} 
                     className={errMsg ? "errMsg" : "offScreen"} 
                     aria-live="assertive">{errMsg}
                     </p>
                     <form method="post" onSubmit={handleSubmit} id="loginForm">
-                        <h3 className="formTitle"> LOGIN</h3>
-
-                        <label htmlFor="emailLogin">
-                            Email
-                            <input 
-                            ref={emailRef} 
-                            autoComplete="off"   
-                            type="text" 
-                            id="emailLogin" 
-                            value={emailLogin} 
-                            onChange={(e) => setEmailLogin(e.target.value)}
-                            name="emailLogin"
-                            required
-                            />
-                        </label>
+                        <h3 className="formTitle"> Login</h3>
+                            <label htmlFor="emailLogin">
+                                Email
+                                <div className="inputWrapper">
+                                    <input 
+                                    ref={emailRef} 
+                                    autoComplete="off"   
+                                    type="text" 
+                                    id="emailLogin" 
+                                    value={emailLogin} 
+                                    onChange={(e) => setEmailLogin(e.target.value)}
+                                    name="emailLogin"
+                                    required
+                                    />
+                                </div>
+                            </label>
+                        
                         <label htmlFor="pwdLogin">
                         Password
+                        
                             <div className="inputWrapper">
                                 <input 
                                 autoComplete="off"
                                 id="pwdLogin"
                                 type={!showPwd? "password" : "text"}
                                 value={pwdLogin} 
-                                onChange={(e) => setPwdLogin(e.target.value)}
+                                onChange= {((e) => setPwdLogin(e.target.value))}
                                 name="pwdLogin"
                                 required
                                 />
-                                <FontAwesomeIcon className={!showPwd? "showPwd" : "hide" } onClick={handleShowPwd}  icon={faEye}/>   
-                                <FontAwesomeIcon  onClick={handleShowPwd} className={showPwd? "showPwd" : "hide" } icon={faEyeSlash} />
-                        
+                                {pwdLogin === ""? 
+                                <FontAwesomeIcon className="showPwd"  icon={faEye}/>  
+                                : 
+                                <FontAwesomeIcon  onClick={handleShowPwd}
+                                className="showPwd" icon={!showPwd === true ? faEye : faEyeSlash} />
+                                }
                             </div>
                         </label>
-                        <button type="submit">Login</button>
-                        <p>
-                            Don't have an account yet? 
-                            <span>
-                                <a href="#signupSec">Sign Up</a>
-                            </span>
-                            <br></br>
-                            <br></br>
-                            <span>OR</span>
-                        </p>
-                        <GoogleSignup/>
+                        <button className = "formsbutton" type="submit">Login</button>
                     </form>
-            
                 </section>
             
         
