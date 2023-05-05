@@ -59,19 +59,19 @@ const Login = () => {
                     
                 if (response.status === 200){
                     const userJson = await response.json()
-                    // setCurrUser({name: userJson.name, email: userJson.email, password: userJson.password})
                     setCurrUser(userJson)
                     setEmailLogin("");
                     setPwdLogin("");
                     console.log ("this is the setAuth", currentUser);
                     console.log ("this is the userJson", userJson);
-                    navigate("/dashboard")
+                    
+                    navigate("/dashboard");
                 } else if (response.status === 401) {
                     throw Error("Please verify your email and password and try again")
 
                 } else {
 
-                    throw new Error("Login failed, please try again")
+                    throw new Error("Please verify your email and password and try again")
                 }
 
             } catch (err) {
@@ -80,7 +80,6 @@ const Login = () => {
                 console.log("err inside catch", err.message)
             }
         
-
     }
     
     return (

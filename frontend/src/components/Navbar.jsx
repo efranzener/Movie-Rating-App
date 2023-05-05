@@ -12,7 +12,6 @@ const Navbar = () => {
   const LogoutButton = async (e) => {
 
     
-    
     const response = await fetch ("/logout", {
         method: "POST", 
         headers: {"Content-Type": "application/json"
@@ -47,19 +46,19 @@ const Navbar = () => {
         end >
           Home
         </NavLink>
-        <li><NavLink
+        <NavLink
           to="/AllMovies"
           className={({ isActive, notActive }) =>
             isActive ? "isActive" : notActive ? "notActive" : "" 
           }
         >
           All Movies|Shows
-        </NavLink></li>
+        </NavLink>
           {currentUser?
-          (<button onClick={LogoutButton}
+          (<NavLink onClick={LogoutButton}
           >
             Logout
-          </button>
+          </NavLink>
           ):(
             ""
           )}

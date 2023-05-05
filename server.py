@@ -1,17 +1,19 @@
 """Server for movie ratings app."""
 
 from flask import (Flask, render_template, request, flash, session,redirect, url_for, jsonify, make_response)
+from flask_cors import CORS
 from model import connect_to_db, db
 import crud
 from jinja2 import StrictUndefined
 import os
-
+import jwt
 # import googleapiclient
-import hashlib
-import googleoauth
+# import hashlib
+# import googleoauth
+
 from google.oauth2 import id_token
-from google_auth_oauthlib.flow import Flow
-import google.auth.transport.requests
+# from google_auth_oauthlib.flow import Flow
+from google.auth.transport import requests as google_requests
 import requests
 from cachecontrol import CacheControl
 
@@ -27,7 +29,9 @@ from flask_login import(
 
 
 app = Flask(__name__)
+CORS(app, origins=['http://localhost:3000'])
 app.secret_key = 'dev'
+
 # app.secret_key = os.environ.get("SECRET_KEY")
 app.jinja_env.undefined = StrictUndefined
 
@@ -100,25 +104,25 @@ def register_user():
 
 
 
-@app.route("/googlesignin")
-def googlesignin():
-    """Process Google sign in authorization flow"""
+# @app.route("/googlesignin")
+# def googlesignin():
+#     """Process Google sign in authorization flow"""
 
 
-    state = hashlib.sha256(os.urandom(1024)).hexdigest()
-    flow = Flow.from_client_secrets_file(client_secrets_file = googleoauth.CLIENT_SECRETS,
-    scopes= googleoauth.SCOPES)
-    flow.redirect_uri = googleoauth.REDIRECT_URI
-    authorization_url, state = flow.authorization_url(
-    access_type="offline",
-    prompt="consent",
-    state = state,
-    include_granted_scopes='true')
+#     state = hashlib.sha256(os.urandom(1024)).hexdigest()
+#     flow = Flow.from_client_secrets_file(client_secrets_file = googleoauth.CLIENT_SECRETS,
+#     scopes= googleoauth.SCOPES)
+#     flow.redirect_uri = googleoauth.REDIRECT_URI
+#     authorization_url, state = flow.authorization_url(
+#     access_type="offline",
+#     prompt="consent",
+#     state = state,
+#     include_granted_scopes='true')
 
-    session['state'] = state
+#     session['state'] = state
 
 
-    return redirect(authorization_url)
+#     return redirect(authorization_url)
 
 
 
@@ -129,7 +133,6 @@ def login():
     email = request.json.get("email")
     print("current email", email)
 
-    # username = request.json.get('usernameLogin')
     password = request.json.get("password")
     print("current password", password)
 
@@ -150,75 +153,118 @@ def login():
                 "emailLogin": email,
                 "pwdLogin": password,
                 "msg": "success"}
-    
-
     else:
         
         return {"msg": "failed"}
 
 
-@app.route('/callback')
+@app.route('/callback', methods=["POST"])
 def callback():
     """ callback function from Google OAuth"""
     
+    data = request.get_json()
 
-    if 'state' in session:
+    print("data", data)
+    credential = data["credential"]
+    client_id = data["client_id"]
+
+
+    try: 
+        sess = requests.session()
+        cached_sess = CacheControl(sess)
+
+        id_info = id_token.verify_oauth2_token(credential, google_requests.Request(session=cached_sess), client_id)
         
-        if request.args.get('state', '') != session['state']:
-            logout_user()
-            flash("something went wrong, please try logging in again")
-            return redirect('/')
-
-    flow = Flow.from_client_secrets_file(client_secrets_file = googleoauth.CLIENT_SECRETS,
-        scopes= googleoauth.SCOPES,
-        )
-    flow.redirect_uri = googleoauth.REDIRECT_URI
-
-    flow.fetch_token(authorization_response = request.url)
-    
-    credentials = flow.credentials
-    
-    session['credentials'] = {
-        'token': credentials.token,
-        'refresh_token': credentials.refresh_token,
-        'token_uri': credentials.token_uri,
-        'client_id': credentials.client_id,
-        'client_secret': credentials.client_secret,
-        'id_token': credentials.id_token,
-        'scopes': credentials.scopes}
-
-    # Use caching to reduce latency
-    sess = requests.session()
-    cached_sess = CacheControl(sess)
-    google_request = google.auth.transport.requests.Request(session=cached_sess)
-
-    # Verify the ID Token issued by Google’s OAuth 2.0 authorization server.
-    id_info = id_token.verify_oauth2_token(
-    id_token = session['credentials']['id_token'], request = google_request, audience = session['credentials']['client_id'])
-    email = id_info['email']
-
-    # Check if user is already in the database
-    user = crud.get_user_by_email(email)
+        if id_info['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
+            raise ValueError('Invalid issuer')
+        email = id_info['email'] 
+        user = crud.get_user_by_email(email)
 
     # If user has an account sign in user
-    if user:
+        if user:
         
-        login_user(user)
-        return redirect(url_for('index'))
+            login_user(user)
+
+        # return ({user: user, id_info:id_info})
 
     # if user is signing in for the first time and is using google sign in, after they pass google authentication,
     # we create a new account for them and then log them in
-    else:
-        email_split = (id_info['email']).split("@")
-        name = email_split[0]
+        else:
+            email_split = (id_info['email']).split("@")
+            name = email_split[0]
+            
+            user = crud.create_user(name = name , email= id_info['email'] )
+            db.session.add(user)
+            db.session.commit()
+            login_user(user)
+
+        google_user = id_info
         
-        user = crud.create_user(name = name , email= id_info['email'] )
-        db.session.add(user)
-        db.session.commit()
-        login_user(user)
+            # Use caching to reduce latency
+    #     sess = requests.session()
+    #     cached_sess = CacheControl(sess)
+    #    S google_signin_request = google_requests.Request(session=cached_sess)
+
+        # # Verify the ID Token issued by Google’s OAuth 2.0 authorization server.
+        # id_info = id_token.verify_oauth2_token(
+        # id_token = session['credentials']['id_token'], request = google_signin_request, audience = session['credentials']['client_id'])
+        # email = id_info['email']
+        return {"user": google_user}
+
+    except ValueError:
+        print("invalid token")
+        return None
+    # if 'state' in session:
+        
+    #     if request.args.get('state', '') != session['state']:
+    #         logout_user()
+    #         flash("something went wrong, please try logging in again")
+    #         return redirect('/')
+
+    
+    # flow = Flow.from_client_secrets_file(client_secrets_file = googleoauth.CLIENT_SECRETS,
+    #     scopes= googleoauth.SCOPES,
+    #     )
+    # flow.redirect_uri = googleoauth.REDIRECT_URI
+
+    # flow.fetch_token(authorization_response = request.url)
+    
+    # credentials = flow.credentials
+    
+    # session['credentials'] = {
+    #     'token': credentials.token,
+    #     'refresh_token': credentials.refresh_token,
+    #     'token_uri': credentials.token_uri,
+    #     'client_id': credentials.client_id,
+    #     'client_secret': credentials.client_secret,
+    #     'id_token': credentials.id_token,
+    #     'scopes': credentials.scopes}
+
+
+
+    # Check if user is already in the database
+    # user = crud.get_user_by_email(email)
+
+    # # If user has an account sign in user
+    # if user:
+        
+    #     login_user(user)
+
+    #     return ({user: user, id_info:id_info})
+
+    # # if user is signing in for the first time and is using google sign in, after they pass google authentication,
+    # # we create a new account for them and then log them in
+    # else:
+    #     email_split = (id_info['email']).split("@")
+    #     name = email_split[0]
+        
+    #     user = crud.create_user(name = name , email= id_info['email'] )
+    #     db.session.add(user)
+    #     db.session.commit()
+    #     login_user(user)
 
         
-        return redirect(url_for('index'))
+        # return {user: user}
 
 
 
@@ -317,7 +363,7 @@ def logout():
         session.pop('state', None)
     
     if ('user' in session == user):
-    # delete the info stored in session
+    
         session.pop('user', None)
         logout_user()
    

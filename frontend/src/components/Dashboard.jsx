@@ -8,6 +8,7 @@ const Dashboard = () => {
     const { currentUser } = useContext(UserContext)
 
     return (
+        
         <>
             <h1> Hello {currentUser.name}</h1>
 
