@@ -7,6 +7,9 @@ import crud
 from jinja2 import StrictUndefined
 import os
 import jwt
+import json
+
+
 # import googleapiclient
 # import hashlib
 # import googleoauth
@@ -19,6 +22,7 @@ from cachecontrol import CacheControl
 
  
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+# TMDB_API_KEY = os.environ[""]
 
 from flask_login import(
     LoginManager,
@@ -179,7 +183,7 @@ def callback():
             raise ValueError('Invalid issuer')
         email = id_info['email'] 
         user = crud.get_user_by_email(email)
-
+        print("id info", id_info)
     # If user has an account sign in user
         if user:
         
@@ -199,7 +203,7 @@ def callback():
             login_user(user)
 
         google_user = id_info
-        
+        print("google_user", google_user)
             # Use caching to reduce latency
     #     sess = requests.session()
     #     cached_sess = CacheControl(sess)
@@ -212,7 +216,8 @@ def callback():
         return {"user": google_user}
 
     except ValueError:
-        print("invalid token")
+        print("invalid token, user", user)
+
         return None
     # if 'state' in session:
         
@@ -278,13 +283,34 @@ def show_user_profile():
 
 
 
-@app.route('/movies')
+@app.route('/allmovies')
 def all_movies():
     """View all movies """
     
-    movies = crud.get_movies()
+    # movies = crud.get_movies()
+   
 
-    return render_template("all_movies.html", movies=movies)
+    # url = "https://moviesdatabase.p.rapidapi.com/titles"
+
+    # headers = {
+    #     "X-RapidAPI-Key": "2eb04281bemsh17ad01bcde02550p121750jsncd4828bf1da9",
+    #     "X-RapidAPI-Host": "moviesdatabase.p.rapidapi.com"
+    # }
+
+    # response = requests.get(url, headers=headers)
+    # responseJson = {"response": response.json()}
+    # print("response json *********************", responseJson, "*************************")
+    
+    movies_list = crud.get_movies()
+    
+    
+    print("all movies in server.py##############################################################",  type(movies_list))
+
+    return jsonify(movies_list)
+    
+
+    # 
+    # return render_template("all_movies.html", movies=movies)
 
 
 

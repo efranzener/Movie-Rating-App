@@ -1,16 +1,25 @@
 
 import { useState } from "react";
-import  { UserContext }  from "./Context";
+import  { AuthContext }  from "./Context";
 
-function AuthProvider ({ children }) {
+const AuthProvider = ({ children }) =>  {
 
-    const [currentUser, setCurrUser] = useState(null);
+    const GetCurrUser = () => {
+
+        const currUser = localStorage.getItem("currentUser");
+        console.log("currUser", currUser)
+        console.log("currUser type", typeof(currUser))
+        return currUser ? currUser : null
+    }
+
+   
+    const [currentUser, setCurrUser] = useState(GetCurrUser);
 
     return(
-        <UserContext.Provider value={{currentUser, setCurrUser}}>
+        <AuthContext.Provider value={{currentUser, setCurrUser}}>
             {children}
-        </UserContext.Provider>
-    )
-}
+        </AuthContext.Provider>
+    );
+};
 
 export default AuthProvider;

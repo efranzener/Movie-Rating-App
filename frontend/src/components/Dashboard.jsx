@@ -1,23 +1,33 @@
-import React,  { useContext } from "react";
+import React, { useContext } from "react";
 // import AuthProvider from "../context/Provider";
-import { UserContext } from "../context/Context";
+import { AuthContext } from "../context/Context";
+// import { AllMovies } from "../components/AllMovies";
+import Homepage from "./Homepage";
+
+
+
+
+
 
 
 const Dashboard = () => {
-
-    const { currentUser } = useContext(UserContext)
-
-    return (
-        
-        <>
-            <h1> Hello {currentUser.name}</h1>
-
-
-        </>
-        
-        
-        );
+  const { currentUser } = useContext(AuthContext);
+  
+  console.log ("this is the current user in dashboard", currentUser)
+  return (
+    <>
+      {currentUser ?
+      <div>
+        <h1> Hello {currentUser.name}</h1>
+        {/* <AllMovies/> */}
+      </div>
+      :
+      <div>
+        {<Homepage/>}
+      </div>
+      }
+    </>
+  );
 };
-
 
 export default Dashboard;

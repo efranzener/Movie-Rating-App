@@ -1,5 +1,6 @@
 from model import db, User, Movie, Rating, connect_to_db
 
+from datetime import datetime
 
 def create_user(name, email, **kwargs):
     """Create and return a new user."""
@@ -53,8 +54,22 @@ def create_movie(title, overview, release_date, poster_path):
 
 def get_movies():
     """ Return all movies"""
+    all_movies = Movie.query.all()
+    movies_list = []
+    for movie in all_movies:
+        # releasedate = movie.release_date
+        # release_date = releasedate.strftime("%Y-%m-%d)
+        movies_data = {
+        "title" : movie.title,
+        "overview" : movie.overview,
+       "poster_path" : movie.poster_path,
+       "release_date" : (movie.release_date).strftime("%d-%b-%Y")
+       }
+        # print("this is the release date
+        #  type", type(releasedate))
+        movies_list.append(movies_data)
 
-    return Movie.query.all()
+    return movies_list
 
 
 def get_movie_by_id(movie_id):
